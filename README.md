@@ -1,0 +1,3 @@
+This html is based on another collaborator's work so the code is not that clean...
+
+You may directly download the html file and it is supposed to work as it fetches necessary components from CDN.
