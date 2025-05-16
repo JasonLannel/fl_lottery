@@ -1,0 +1,970 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>抽奖组件</title>
+  <style>
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 20px;
+      position: relative;
+      padding-bottom: 80px; /* 新增：为按钮预留空间 */
+    }
+    .container-item {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 20px;
+      position: relative;
+      min-height: 180px;
+      min-width: 100%;
+      padding: 20px 0;
+    }
+    .lucky-container {
+      display: none;
+      flex-wrap: wrap;
+    }
+
+    .vowel-container {
+      display: none;
+      padding-left: 25px;
+      flex-wrap: wrap;
+    }
+
+    .number-container {
+      display: none;
+      padding-right: 25px;
+      flex-wrap: wrap;
+    }
+
+    .button-container {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      position: absolute;
+      bottom: 20px; /* 控制按钮距离底部的距离 */
+    }
+    .control-button {
+      /* 基础样式 */
+      margin-top: 24px;
+      margin-left: 10px;
+      margin-right: 10px;
+      padding: 12px 32px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      
+      /* 色彩方案 */
+      color: white;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      border-radius: 50px; /* 胶囊形状 */
+      
+      /* 阴影效果 */
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      
+      /* 过渡动画 */
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      
+      /* 文字样式 */
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+    /* 悬停状态 */
+    .control-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+      background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+    }
+
+    /* 点击状态 */
+    .control-button:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 10px rgba(102, 126, 234, 0.4);
+    }
+
+    /* 禁用状态 */
+    .control-button:disabled {
+      background: #cbd5e0;
+      transform: none;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
+    /* 添加图标的版本（可选） */
+    .control-button::after {
+      content: '→';
+      margin-left: 8px;
+      transition: margin 0.2s;
+    }
+
+    .control-button:hover::after {
+      margin-left: 12px;
+    }
+
+    #history-panel {
+      text-align: center;
+      margin: auto;
+      max-width: 800px;
+      font-family: 'Segoe UI';
+    }
+
+    #history-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      padding: 10px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      min-height: 60px;
+    }
+  </style>
+</head>
+<body>
+
+      <!-- 新增历史记录显示区 -->
+
+  <div class ="container">
+    <div class="container-item">
+      <div id="my-lucky-1" class="lucky-container"></div>
+      <div id="my-lucky-2" class="lucky-container"></div>
+      <div id="my-lucky-3" class="lucky-container"></div>
+      <div id="my-lucky-4" class="lucky-container"></div>
+      <div id="my-lucky-5" class="lucky-container"></div>
+      <!-- <div id="my-lucky-f1" class="vowel-container"></div>
+      <div id="my-lucky-f2" class="number-container"></div>
+      <div id="my-lucky-f3" class="vowel-container"></div>
+      <div id="my-lucky-f4" class="number-container"></div>
+      <div id="my-lucky-f5" class="vowel-container"></div>
+      <div id="my-lucky-f6" class="number-container"></div> -->
+    </div>
+    <div class="container-item">
+      <div id="my-lucky-6" class="lucky-container"></div>
+      <div id="my-lucky-7" class="lucky-container"></div>
+      <div id="my-lucky-8" class="lucky-container"></div>
+      <div id="my-lucky-9" class="lucky-container"></div>
+      <div id="my-lucky-10" class="lucky-container"></div>
+      <div id="my-lucky-f1" class="vowel-container"></div>
+      <div id="my-lucky-f2" class="number-container"></div>
+      <div id="my-lucky-f3" class="vowel-container"></div>
+      <div id="my-lucky-f4" class="number-container"></div>
+      <div id="my-lucky-f5" class="vowel-container"></div>
+      <div id="my-lucky-f6" class="number-container"></div>
+      <div id="my-lucky-f7" class="vowel-container"></div>
+      <div id="my-lucky-f8" class="number-container"></div>
+      <div id="my-lucky-f9" class="vowel-container"></div>
+      <div id="my-lucky-f10" class="number-container"></div>
+    </div>
+  </div>
+<!-- 新增的按钮容器 -->
+  <div class="button-container">
+    <button id="control-button" class="control-button">启动</button>
+    <button id="confirm-button" class="control-button">确认结果</button>
+  </div>
+
+  <div id="history-panel" class="history-panel">
+    <h3>抽奖历史记录</h3>
+    <div id="history-list" class="history-list"></div>
+  </div>
+
+  <script src="https://unpkg.com/lucky-canvas@1.7.25"></script>
+  <script src="https://cdn.jsdelivr.net/npm/seedrandom/seedrandom.min.js"></script>
+  <script>
+    // 奖品、滚轮配置
+    const allVowels = [10, 11, 12, 13, 14]; // a, e, i, o, u
+    const vowelMap = {10: 'a', 11: 'e', 12: 'i', 13: 'o', 14: 'u'};
+    const allNumbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+    function createVowelSlotConfig(vowels, useShuffle = true) {
+      let order = [];
+      if(useShuffle){
+        // 随机选择一个元音字母作为起始点
+        const start = Math.floor(Math.random() * vowels.length);
+        order = vowels.slice(start, vowels.length).concat(vowels.slice(0, start));
+      } else {
+        order = vowels;
+      }
+      return [{
+        order: order,
+        direction: 1,
+        speed: 5,
+        background: '#ffffff',
+        borderRadius: '4px'
+      }];
+    }
+    function createNumberSlotsConfig(numbers) {
+      // 三位数号码
+      const slotsConfig = [];
+      for(let i = 0; i < 3; i++){
+        // 随机选择一个数字作为起始点
+        const start = Math.floor(Math.random() * numbers.length);
+        const order = numbers.slice(start, numbers.length).concat(numbers.slice(0, start));
+        slotsConfig.push({ 
+          order: order, 
+          direction: -1, 
+          speed: 10 + i * 2,
+          background: '#ffffff',
+          borderRadius: '4px'
+        });
+      }
+      return slotsConfig;
+    }
+    function createVowelNumberSlotsConfig(vowels, numbers) {
+      return createVowelSlotConfig(vowels).concat(createNumberSlotsConfig(numbers));
+    }
+
+    // 创建抽奖组件实例
+    
+    function createVowelLuckyInstance(tag, slotsConfig) {
+      if(!tag) return;
+      if(slotsConfig.length === 0){
+        slotsConfig = createVowelSlotConfig(allVowels);
+      }
+      return new LuckyCanvas.SlotMachine(`#${tag}`, {
+        width: '100px',
+        height: '180px',
+        blocks: [
+          { 
+            padding: '12px', 
+            background: '#5a67d8', // Solid indigo color
+            borderRadius: '10px',
+            // boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+          },
+          { 
+            padding: '8px', 
+            background: '#f7fafc', // Very light gray
+            borderRadius: '6px'
+          },
+        ],
+        slots: slotsConfig,
+        prizes: [
+          { fonts: [{ text: '0', top: '15%', fontColor: '#2d3748', fontWeight: '600' }] },
+          { fonts: [{ text: '1', top: '15%', fontColor: '#2d3748', fontWeight: '600' }] },
+          { fonts: [{ text: '2', top: '15%', fontColor: '#2d3748', fontWeight: '600' }] },
+          { fonts: [{ text: '3', top: '15%', fontColor: '#2d3748', fontWeight: '600' }] },
+          { fonts: [{ text: '4', top: '15%', fontColor: '#2d3748', fontWeight: '600' }] },
+          { fonts: [{ text: '5', top: '15%', fontColor: '#2d3748', fontWeight: '600' }] },
+          { fonts: [{ text: '6', top: '15%', fontColor: '#2d3748', fontWeight: '600' }] },
+          { fonts: [{ text: '7', top: '15%', fontColor: '#2d3748', fontWeight: '600' }] },
+          { fonts: [{ text: '8', top: '15%', fontColor: '#2d3748', fontWeight: '600' }] },
+          { fonts: [{ text: '9', top: '15%', fontColor: '#2d3748', fontWeight: '600' }] },
+          { fonts: [{ text: 'a', top: '15%', fontColor: '#805ad5', fontWeight: '700', fontSize: '38px' }] },
+          { fonts: [{ text: 'e', top: '15%', fontColor: '#805ad5', fontWeight: '700', fontSize: '38px' }] },
+          { fonts: [{ text: 'i', top: '15%', fontColor: '#805ad5', fontWeight: '700', fontSize: '38px' }] },
+          { fonts: [{ text: 'o', top: '15%', fontColor: '#805ad5', fontWeight: '700', fontSize: '38px' }] },
+          { fonts: [{ text: 'u', top: '15%', fontColor: '#805ad5', fontWeight: '700', fontSize: '38px' }] },
+        ],
+        defaultStyle: {
+          borderRadius: '6px',
+          background: '#edf2f7',
+          fontSize: '34px',
+          fontColor: '#2d3748',
+          fontWeight: '600',
+          boxShadow: 'inset 0 0 8px rgba(0,0,0,0.05)'
+        },
+        defaultConfig: {
+          rowSpacing: '22px',
+          colSpacing: '12px',
+        },
+
+        start: function() {
+          // Get the container element
+          const container = document.getElementById(tag);
+          // Animation when starting
+          container.style.transition = 'transform 0.2s ease';
+          container.style.transform = 'scale(1.02)';
+          setTimeout(() => {
+            container.style.transform = 'scale(1)';
+          }, 200);
+        },
+        end: function(prize) {
+          // Get the container element
+          const container = document.getElementById(tag);
+          // Winning animation
+          container.style.transition = 'all 0.3s ease';
+          container.style.transform = 'scale(1.05)';
+          container.style.boxShadow = '0 0 20px rgba(102, 126, 234, 0.7)';
+          setTimeout(() => {
+            container.style.transform = 'scale(1)';
+            container.style.boxShadow = 'none';
+          }, 500);
+        }
+      });
+    }
+    function createNumberLuckyInstance(tag, slotsConfig) {
+      if(!tag) return;
+      if(slotsConfig.length === 0){
+        slotsConfig = createNumberSlotsConfig(allNumbers);
+      }
+      return new LuckyCanvas.SlotMachine(`#${tag}`, {
+        width: '240px',
+        height: '180px',
+        blocks: [
+          { 
+            padding: '12px', 
+            background: '#5a67d8', // Solid indigo color
+            borderRadius: '10px',
+            // boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+          },
+          { 
+            padding: '8px', 
+            background: '#f7fafc', // Very light gray
+            borderRadius: '6px'
+          },
+        ],
+        slots: slotsConfig,
+        prizes: [
+          { fonts: [{ text: '0', top: '15%', fontColor: '#2d3748', fontWeight: '600' }] },
+          { fonts: [{ text: '1', top: '15%', fontColor: '#2d3748', fontWeight: '600' }] },
+          { fonts: [{ text: '2', top: '15%', fontColor: '#2d3748', fontWeight: '600' }] },
+          { fonts: [{ text: '3', top: '15%', fontColor: '#2d3748', fontWeight: '600' }] },
+          { fonts: [{ text: '4', top: '15%', fontColor: '#2d3748', fontWeight: '600' }] },
+          { fonts: [{ text: '5', top: '15%', fontColor: '#2d3748', fontWeight: '600' }] },
+          { fonts: [{ text: '6', top: '15%', fontColor: '#2d3748', fontWeight: '600' }] },
+          { fonts: [{ text: '7', top: '15%', fontColor: '#2d3748', fontWeight: '600' }] },
+          { fonts: [{ text: '8', top: '15%', fontColor: '#2d3748', fontWeight: '600' }] },
+          { fonts: [{ text: '9', top: '15%', fontColor: '#2d3748', fontWeight: '600' }] },
+          { fonts: [{ text: 'a', top: '15%', fontColor: '#805ad5', fontWeight: '700', fontSize: '38px' }] },
+          { fonts: [{ text: 'e', top: '15%', fontColor: '#805ad5', fontWeight: '700', fontSize: '38px' }] },
+          { fonts: [{ text: 'i', top: '15%', fontColor: '#805ad5', fontWeight: '700', fontSize: '38px' }] },
+          { fonts: [{ text: 'o', top: '15%', fontColor: '#805ad5', fontWeight: '700', fontSize: '38px' }] },
+          { fonts: [{ text: 'u', top: '15%', fontColor: '#805ad5', fontWeight: '700', fontSize: '38px' }] },
+        ],
+        defaultStyle: {
+          borderRadius: '6px',
+          background: '#edf2f7',
+          fontSize: '34px',
+          fontColor: '#2d3748',
+          fontWeight: '600',
+          boxShadow: 'inset 0 0 8px rgba(0,0,0,0.05)'
+        },
+        defaultConfig: {
+          rowSpacing: '22px',
+          colSpacing: '12px',
+        },
+
+        start: function() {
+          // Get the container element
+          const container = document.getElementById(tag);
+          // Animation when starting
+          container.style.transition = 'transform 0.2s ease';
+          container.style.transform = 'scale(1.02)';
+          setTimeout(() => {
+            container.style.transform = 'scale(1)';
+          }, 200);
+        },
+        end: function(prize) {
+          // Get the container element
+          const container = document.getElementById(tag);
+          // Winning animation
+          container.style.transition = 'all 0.3s ease';
+          container.style.transform = 'scale(1.05)';
+          container.style.boxShadow = '0 0 20px rgba(102, 126, 234, 0.7)';
+          setTimeout(() => {
+            container.style.transform = 'scale(1)';
+            container.style.boxShadow = 'none';
+          }, 500);
+        }
+      });
+    }
+    function createLuckyInstance(tag, slotsConfig) {
+      if(!tag) return;
+      if(slotsConfig.length === 0){
+        slotsConfig = createVowelNumberSlotsConfig(allVowels, allNumbers);
+      }
+      return new LuckyCanvas.SlotMachine(`#${tag}`, {
+        width: '280px',
+        height: '180px',
+        blocks: [
+          { 
+            padding: '12px', 
+            background: '#5a67d8', // Solid indigo color
+            borderRadius: '10px',
+            // boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+          },
+          { 
+            padding: '8px', 
+            background: '#f7fafc', // Very light gray
+            borderRadius: '6px'
+          },
+        ],
+        slots: slotsConfig,
+        prizes: [
+          { fonts: [{ text: '0', top: '15%', fontColor: '#2d3748', fontWeight: '600' }] },
+          { fonts: [{ text: '1', top: '15%', fontColor: '#2d3748', fontWeight: '600' }] },
+          { fonts: [{ text: '2', top: '15%', fontColor: '#2d3748', fontWeight: '600' }] },
+          { fonts: [{ text: '3', top: '15%', fontColor: '#2d3748', fontWeight: '600' }] },
+          { fonts: [{ text: '4', top: '15%', fontColor: '#2d3748', fontWeight: '600' }] },
+          { fonts: [{ text: '5', top: '15%', fontColor: '#2d3748', fontWeight: '600' }] },
+          { fonts: [{ text: '6', top: '15%', fontColor: '#2d3748', fontWeight: '600' }] },
+          { fonts: [{ text: '7', top: '15%', fontColor: '#2d3748', fontWeight: '600' }] },
+          { fonts: [{ text: '8', top: '15%', fontColor: '#2d3748', fontWeight: '600' }] },
+          { fonts: [{ text: '9', top: '15%', fontColor: '#2d3748', fontWeight: '600' }] },
+          { fonts: [{ text: 'a', top: '15%', fontColor: '#805ad5', fontWeight: '700', fontSize: '38px' }] },
+          { fonts: [{ text: 'e', top: '15%', fontColor: '#805ad5', fontWeight: '700', fontSize: '38px' }] },
+          { fonts: [{ text: 'i', top: '15%', fontColor: '#805ad5', fontWeight: '700', fontSize: '38px' }] },
+          { fonts: [{ text: 'o', top: '15%', fontColor: '#805ad5', fontWeight: '700', fontSize: '38px' }] },
+          { fonts: [{ text: 'u', top: '15%', fontColor: '#805ad5', fontWeight: '700', fontSize: '38px' }] },
+        ],
+        defaultStyle: {
+          borderRadius: '6px',
+          background: '#edf2f7',
+          fontSize: '34px',
+          fontColor: '#2d3748',
+          fontWeight: '600',
+          boxShadow: 'inset 0 0 8px rgba(0,0,0,0.05)'
+        },
+        defaultConfig: {
+          rowSpacing: '22px',
+          colSpacing: '12px',
+        },
+
+        start: function() {
+          // Get the container element
+          const container = document.getElementById(tag);
+          // Animation when starting
+          container.style.transition = 'transform 0.2s ease';
+          container.style.transform = 'scale(1.02)';
+          setTimeout(() => {
+            container.style.transform = 'scale(1)';
+          }, 200);
+        },
+        end: function(prize) {
+          // Get the container element
+          const container = document.getElementById(tag);
+          // Winning animation
+          container.style.transition = 'all 0.3s ease';
+          container.style.transform = 'scale(1.05)';
+          container.style.boxShadow = '0 0 20px rgba(102, 126, 234, 0.7)';
+          setTimeout(() => {
+            container.style.transform = 'scale(1)';
+            container.style.boxShadow = 'none';
+          }, 500);
+        }
+      });
+    }
+
+    // 抽奖结果生成
+    // 设置随机数种子
+    let rng = new Math.seedrandom('e20ff589906984a0558a4f76f5e774de1db014766db5ac489e22dfa2a00e0ce4');
+    let latestHash = '';
+    let lastTimestamp = 0;
+    let latestBlockInfo = '';
+    let timeLogRecords = [];
+    async function getRng() {
+      const timestamp = Math.floor(Date.now() / 1000);
+      function convertTimestampToDate(timestamp) {
+        // Format: XX:XX:XX
+        const date = new Date(timestamp * 1000);
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        const seconds = String(date.getSeconds()).padStart(2, '0');
+        return `${hours}:${minutes}:${seconds}`;
+      }
+      async function fetchLatestEthBlockHash() {
+        if (timestamp - lastTimestamp < 30) {
+          return latestHash;
+        }
+        lastTimestamp = timestamp;
+        const response = await fetch('https://api.blockcypher.com/v1/eth/main').catch(error => {
+          throw new Error('Error fetching data from API: ' + error);
+        });
+        const data = await response.json();
+        if (data) {
+            // Print the timestamp of the latest block
+            latestBlockInfo = `Latest block info: height ${data.height}, timestamp ${data.time}, hash: ${data.hash}`;
+            return data.hash;
+        } else {
+            throw new Error('No data, unknown error');
+        }
+      }
+      async function multiSeedRng(){
+        let seed = 0;
+        let newRng = rng;
+        await fetchLatestEthBlockHash().then(hash => {
+          if (hash !== latestHash) {
+            newRng = new Math.seedrandom(hash);
+          }
+        }).catch(error => {
+          console.error('Error fetching the latest block hash:', error);
+        });
+        timeLogRecords.push(`Time:${convertTimestampToDate(timestamp)} ${latestBlockInfo}`);
+      }
+      await multiSeedRng().catch(error => {
+        console.error('Error fetching the latest block hash:', error);
+      });
+    }
+    function printTimeLog() {
+      timeLogRecords.forEach(record => {
+        console.log(record);
+      });
+    }
+    // 生成符合要求的号码组合
+    // 给定可选的元音字母，生成所有可能的组合
+    const chosenCombinations = [];
+    function mapCombinationToString(combination) {
+      return `${vowelMap[combination[0]]}-${combination.slice(1).join('')}`;
+    }
+    function generateValidCombinations(vowels) {
+      const res = [];
+      for (let vowel of vowels) {
+        for (let num = 1; num <= 160; num++) {
+          // 将数字转换为三位数，前面补零
+          const numStr = num.toString().padStart(3, '0');
+          // 将数字字符串拆分为单个数字
+          const digits = numStr.split('').map(d => parseInt(d));
+          // 创建组合 [vowel, digit1, digit2, digit3]
+          res.push([vowel, digits[0], digits[1], digits[2]]);
+        }
+      }
+      // 过滤掉已经抽取过的组合
+      return res.filter(combination => 
+        !chosenCombinations.includes(mapCombinationToString(combination)));
+    }
+    // 生成单个抽奖结果
+    function generateResults(vowels, myRNG) {
+      const validCombinations = generateValidCombinations(vowels);
+      const randomIndex = Math.floor(myRNG() * validCombinations.length);
+      const combination = validCombinations[randomIndex];
+      const index = combination.slice(0, 4);
+      const resultStr = mapCombinationToString(combination);
+      chosenCombinations.push(resultStr);    
+      return {index: index, resultStr: resultStr};
+    }
+
+    // 抽奖信息配置
+    const luckyInstanceRecords = [];
+    const stageConfig = {
+      'third': { count: 50, next: 'second', buttonText: `抽取三等奖` },
+      'second': { count: 15, next: 'first', buttonText: '抽取二等奖' },
+      'first': { count: 1, next: 'wennan', buttonText: '抽取一等奖' },
+      'wennan': { count: 3, next: 'end', buttonText: '抽取文南奖' },
+    };    
+    // 获取当前阶段的名称
+    function getStageName(stage) {
+      return {
+        'third': '三等奖',
+        'second': '二等奖',
+        'first': '一等奖',
+        'wennan': '文南奖',
+      }[stage];
+    }
+    // 获取当前阶段历史记录的颜色
+    function getStageColor(stage) {
+      return {
+        'third': '#d4edda',
+        'second': '#cce5ff',
+        'first': '#f8d7da',
+        'wennan': '#fff3cd',
+      }[stage];
+    }
+
+    // 创建十个二等、三等奖抽奖组件实例
+    for (let i = 1; i <= 10; i++) {
+      const slotsConfig = createVowelNumberSlotsConfig(allVowels, allNumbers);
+      const tag = `my-lucky-${i}`;
+      luckyInstanceRecords.push({
+        instance: createLuckyInstance(tag, slotsConfig),
+        tag: tag,
+      });
+      // 鼠标悬停效果
+      const container = document.getElementById(tag);
+      container.style.transition = 'transform 0.3s ease';
+      container.addEventListener('mouseenter', () => {
+        container.style.transform = 'translateY(-5px)';
+      });
+      container.addEventListener('mouseleave', () => {
+        container.style.transform = 'translateY(0)';
+      });
+      container.style.transition = 'opacity 0.2s ease';
+    }
+
+    // 创建一等奖、文南奖的抽奖组件实例
+    for (let i = 1; i <= 10; i++) {
+      const tag = `my-lucky-f${i}`;
+      if (i % 2 === 1) {
+        // 使用元音字母，以第 (i + 1) / 2 个元音字母为中心
+        const vowelIndex = (i - 1) / 2;
+        const config = createVowelSlotConfig(allVowels
+          .slice(vowelIndex, allVowels.length)
+          .concat(allVowels.slice(0, vowelIndex)), false);
+        //  const config = createVowelSlotConfig(allVowels);
+        luckyInstanceRecords.push({
+          instance: createVowelLuckyInstance(tag, config),
+          tag: tag,
+        });
+      } else {
+        // 使用数字
+        luckyInstanceRecords.push({
+          instance: createNumberLuckyInstance(tag, createNumberSlotsConfig(allNumbers)),
+          tag: tag,
+        });
+      }
+      // 鼠标悬停效果
+      const container = document.getElementById(tag);
+      container.style.transition = 'transform 0.3s ease';
+      container.addEventListener('mouseenter', () => {
+        container.style.transform = 'translateY(-5px)';
+      });
+      container.addEventListener('mouseleave', () => {
+        container.style.transform = 'translateY(0)';
+      });
+      container.style.transition = 'opacity 0.2s ease';
+    }
+
+    // 按钮参数
+    const controlButton = document.getElementById('control-button');
+    const confirmButton = document.getElementById('confirm-button');
+    let isPlaying = false;
+    let isStopVowel = false;
+    let isToUpdate = false;
+    let activeCount = 0; // 本轮抽奖的数量
+    let activeInstanceRecords = []; // 本轮抽奖可操作的实例
+    let activeInstanceRecordsCount = 0; // 本轮抽奖可操作的实例数量
+    let canClickControlButton = true;
+    let canClickConfirmButton = false;
+    confirmButton.style.display = 'none';
+    confirmButton.style.opacity = '0.7';
+
+    function disableButton(button) {
+      button.disabled = true;
+      button.style.opacity = '0.7'; // 视觉反馈
+    }
+
+    // 获取当前操作范围的实例
+    function collectActiveRecords(count) {
+      return activeInstanceRecords.slice(0, count);
+    }
+
+    // 计算抽奖轮数
+    function getRemainingRoundCount(count, stage) {
+      if (stage === 'first' || stage === 'wennan') {
+        return Math.ceil(count / Math.max(1, activeInstanceRecordsCount / 2));
+      }
+      return Math.ceil(count / Math.max(1, activeInstanceRecordsCount));
+    }
+
+    function getButtonText(remainingCount, stage) {
+      return stageConfig[stage].buttonText + 
+        `（剩余${getRemainingRoundCount(remainingCount, stage)}次）`;
+    }
+  
+    // 历史记录配置
+    let historyPrizeRecords = [];
+    const historyPrizeRecordList = document.getElementById('history-list');    
+    // 更新历史记录
+    function updateHistory() {
+      historyPrizeRecordList.innerHTML = historyPrizeRecords.map(record => `
+        <div style="margin-bottom: 15px; width: 100%; text-align: center;">
+          <!-- <strong>${getStageName(record.stage)}：</strong> -->
+          ${record.results.map(item => `
+            <span style="
+              background: ${getStageColor(record.stage)};
+              padding: 3px 8px;
+              border-radius: 12px;
+              margin: 2px;
+              display: inline-block;
+            ">${item}</span>
+          `).join('')}
+        </div>
+      `).join('');
+    }
+
+    function printRecord(record) {
+      console.log(`${getStageName(record.stage)}：${record.results.join(', ')}`);
+    }
+
+    function printHistory() {
+      historyPrizeRecords.forEach(record => {
+        console.log(`${getStageName(record.stage)}：${record.results.join(', ')}`);
+      });
+    }
+
+    // 清空历史记录
+    function clearHistory() {
+      historyPrizeRecords = [];
+      historyPrizeRecordList.innerHTML = '';
+    }
+
+    // 初始化
+    let currentStage = 'third'; // 初始从三等奖开始抽取
+    let remainingCount = stageConfig[currentStage].count; // 各阶段剩余抽取次数
+    activeInstanceRecordsCount = 10; // 可操作的实例数量
+    activeInstanceRecords = luckyInstanceRecords.slice(0, activeInstanceRecordsCount); // 初始可操作的实例
+    activeInstanceRecords.forEach(record => {
+      const container = document.getElementById(record.tag);
+      container.style.display = 'flex';
+      container.style.opacity = '1'; // 显示实例
+    });
+    let prizeRecords = []; // 本次抽奖结果记录
+    let vowelRecords = []; // 本次抽奖元音字母记录
+    // 设置按钮文本
+    controlButton.textContent = getButtonText(remainingCount, currentStage);
+
+    // 存储
+
+    // 启动或暂停游戏
+    // 替换原有的按钮点击事件
+    controlButton.addEventListener('click', async () => {
+      if (!canClickControlButton) return; // 如果在冷却期，直接返回
+      
+      // 进入冷却期
+      canClickControlButton = false;
+      controlButton.style.opacity = '0.7'; // 视觉反馈
+      canClickConfirmButton = false;
+      confirmButton.style.opacity = '0.7'; // 视觉反馈
+      
+      // 如果当前需要更新实例配置
+      if (isToUpdate) {
+        // 隐藏当前实例
+        for (let record of activeInstanceRecords) {
+          const container = document.getElementById(record.tag);
+          container.style.opacity = '0';
+          setTimeout(() => {
+            container.style.display = 'none'; // 隐藏实例
+          }, 200);
+        }
+        // 清空历史记录
+        clearHistory();
+        // 如果当前是一等奖，隐藏历史记录
+        if (currentStage == 'first') {
+          const container = document.getElementById('history-panel');
+          container.style.opacity = '0';
+          setTimeout(() => {
+            container.style.display = 'none'; // 隐藏实例
+          }, 200);
+        }
+        // 更新实例配置
+        activeInstanceRecords = [];
+        if (currentStage === 'second') {
+          for (let i = 0; i < 5; i++) {
+            activeInstanceRecords.push(luckyInstanceRecords[i * 2]);
+          }
+          activeInstanceRecordsCount = 5;
+        } else if (currentStage === 'first') {
+          // activeInstanceRecords = luckyInstanceRecords.slice(10, 20);
+          // activeInstanceRecordsCount = 10;
+          activeInstanceRecords = luckyInstanceRecords.slice(16, 18);
+          activeInstanceRecordsCount = 2;
+        } else if (currentStage === 'wennan') {
+          // for (let i = 0; i < 3; i++) {
+          //   activeInstanceRecords.push(luckyInstanceRecords[i * 4 + 10]);
+          //   activeInstanceRecords.push(luckyInstanceRecords[i * 4 + 10 + 1]);
+          // }
+          // activeInstanceRecordsCount = 6;
+          activeInstanceRecords = luckyInstanceRecords.slice(18, 20);
+          activeInstanceRecordsCount = 2;
+        } else {
+          alert('错误：当前阶段不支持抽奖');
+          return;
+        }
+        // 恢复原来的设置防止穿帮看出来是复用的实例（）
+        activeInstanceRecords.forEach(record => {
+          record.instance.init();
+        });
+        setTimeout(() => {
+          for (let record of activeInstanceRecords) {
+            const container = document.getElementById(record.tag);
+            container.style.display = 'flex';
+            container.style.opacity = '1'; // 显示实例
+          }
+        }, 240);
+        controlButton.textContent = getButtonText(remainingCount, currentStage);
+        isToUpdate = false;
+        // 1000ms后恢复点击
+        setTimeout(() => {
+          canClickControlButton = true;
+          controlButton.style.opacity = '1';
+        }, 600);
+      } else if (!isPlaying) {
+        // 开始抽奖
+        vowelRecords = []; // 清空元音字母记录
+        timeLogRecords = []; // 清空时间记录
+        if (currentStage === 'first') {
+          // 一等奖
+          // activeCount = Math.min(remainingCount, activeInstanceRecordsCount / 2);
+          // collectActiveRecords(activeCount * 2).forEach((record, idx) => {
+          //   if(idx % 2 === 1) {
+          //     record.instance.play();
+          //   }
+          // });
+          // controlButton.textContent = '停止';
+          activeCount = Math.min(remainingCount, activeInstanceRecordsCount / 2);
+          collectActiveRecords(activeCount * 2).forEach((record, idx) => {
+            record.instance.play();
+          });
+          controlButton.textContent = '停止抽取字母';
+          isStopVowel = true;
+        } else if (currentStage == 'wennan') {
+          // 文南奖
+          activeCount = Math.min(remainingCount, activeInstanceRecordsCount / 2);
+          collectActiveRecords(activeCount * 2).forEach((record, idx) => {
+            record.instance.play();
+          });
+          controlButton.textContent = '停止抽取字母';
+          isStopVowel = true;
+        } else {
+          activeCount = Math.min(remainingCount, activeInstanceRecordsCount);
+          collectActiveRecords(activeCount).forEach(record => record.instance.play());
+          controlButton.textContent = '停止';
+        } 
+
+        isPlaying = true;
+        confirmButton.style.display = 'block';
+        
+        // 2500ms后恢复点击
+        setTimeout(() => {
+          canClickControlButton = true;
+          controlButton.style.opacity = '1';
+        }, 2500);
+      } else {
+        getRng().then(async () => {
+          controlButton.disabled = true;
+          // 批量停止实例
+          const stopPromises = [];
+          prizeRecords = [];
+          if (currentStage === 'first') {
+            // collectActiveRecords(activeCount * 2).forEach((record, idx) => {
+            //   if(idx % 2 === 1) {
+            //     const index = Math.floor(idx / 2);
+            //     const result = generateResults(allVowels.slice(index, index + 1), rng);
+            //     stopPromises.push(record.instance.stop(result.index.slice(1, 4)));
+            //     prizeRecords.push(result.resultStr);
+            //   }
+            // });
+            if(isStopVowel){
+              collectActiveRecords(activeCount * 2).forEach((record, idx) => {
+                if(idx % 2 === 0) {
+                  const index = Math.floor(idx / 2);
+                  const result = generateResults(allVowels, rng);
+                  stopPromises.push(record.instance.stop(result.index.slice(0, 1)));
+                  vowelRecords.push(result.index.slice(0, 1));
+                }
+              });
+            } else {
+              collectActiveRecords(activeCount * 2).forEach((record, idx) => {
+                if(idx % 2 === 1) {
+                  const index = Math.floor(idx / 2);
+                  const result = generateResults(vowelRecords[index], rng);
+                  stopPromises.push(record.instance.stop(result.index.slice(1, 4)));
+                  prizeRecords.push(result.resultStr);
+                }
+              });
+            }
+          } else if (currentStage == 'wennan') {
+            if(isStopVowel){
+              collectActiveRecords(activeCount * 2).forEach((record, idx) => {
+                if(idx % 2 === 0) {
+                  const index = Math.floor(idx / 2);
+                  const result = generateResults(allVowels, rng);
+                  stopPromises.push(record.instance.stop(result.index.slice(0, 1)));
+                  vowelRecords.push(result.index.slice(0, 1));
+                }
+              });
+            } else {
+              collectActiveRecords(activeCount * 2).forEach((record, idx) => {
+                if(idx % 2 === 1) {
+                  const index = Math.floor(idx / 2);
+                  const result = generateResults(vowelRecords[index], rng);
+                  stopPromises.push(record.instance.stop(result.index.slice(1, 4)));
+                  prizeRecords.push(result.resultStr);
+                }
+              });
+            }
+          } else {
+            collectActiveRecords(activeCount).forEach((record, idx) => {
+              const result = generateResults(allVowels, rng);
+              stopPromises.push(record.instance.stop(result.index));
+              prizeRecords.push(result.resultStr);
+            })
+          }
+          
+          try {
+            await Promise.all(stopPromises);
+            
+            if(isStopVowel){
+              isStopVowel = false;
+              controlButton.textContent = '抽取数字';
+            } else {
+              isPlaying = false;
+              controlButton.textContent = '重新抽取';
+            }
+          } finally {
+            controlButton.disabled = false;
+            if (currentStage !== 'end') {
+              // 2500ms后恢复点击
+              setTimeout(() => {
+                canClickControlButton = true;
+                controlButton.style.opacity = '1';
+                if(!isStopVowel){
+                  canClickConfirmButton = true;
+                  confirmButton.style.opacity = '1';
+                }
+              }, 2500);
+            }
+          }
+        });
+      }
+    });
+    confirmButton.addEventListener('click', () => {
+      if (!canClickConfirmButton) return; // 如果在冷却期，直接返回
+      
+      // 进入冷却期
+      canClickConfirmButton = false;
+      confirmButton.style.opacity = '0.7'; // 视觉反馈
+      canClickControlButton = false;
+      controlButton.style.opacity = '0.7'; // 视觉反馈
+      
+      // 更新历史记录
+      historyPrizeRecords.push({
+        stage: currentStage,
+        results: prizeRecords,
+      });
+      updateHistory();
+      printTimeLog();
+      printRecord({
+        stage: currentStage,
+        results: prizeRecords,
+      });
+      // 更新抽奖状态
+      remainingCount = remainingCount - activeCount;
+      if (remainingCount <= 0) {
+        // printHistory();
+        const nextStage = stageConfig[currentStage].next;
+        if (nextStage === 'end') {
+          controlButton.textContent = '抽奖结束';
+        } else if (currentStage === 'wennan') {
+          remainingCount = stageConfig[nextStage].count;
+          clearHistory();
+          controlButton.textContent = getButtonText(remainingCount, nextStage);
+        } else {
+          remainingCount = stageConfig[nextStage].count;
+          isToUpdate = true; // 设置更新标志
+          controlButton.textContent = stageConfig[nextStage].buttonText + "！";
+        }
+        currentStage = nextStage;
+      } else {
+        controlButton.textContent = getButtonText(remainingCount, currentStage);
+      }
+      canClickConfirmButton = false;
+      confirmButton.style.opacity = '0.7'; // 视觉反馈
+      confirmButton.style.display = 'none';
+      if(currentStage !== 'end'){
+        setTimeout(() => {
+          canClickControlButton = true;
+          controlButton.style.opacity = '1';
+        }, 200);
+      }
+    });
+  </script>
+
+</body>
+</html>
